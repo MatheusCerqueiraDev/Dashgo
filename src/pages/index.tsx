@@ -1,30 +1,35 @@
 import { Button, Flex, Stack } from "@chakra-ui/react";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { yupResolver } from "@hookform/resolvers/yup/dist/yup";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { Input } from "../components/Form";
 
-type SignInFormatData = {
+type Inputs = {
   email: string;
   password: string;
 };
 
-const singInFormSchema = yup.object().shape({
-  email: yup
-    .string()
-    .required("Email é obrigatório")
-    .email("Insira um email existente"),
-  password: yup.string().required("Senha é obrigatório"),
-});
-
-export default function Home() {
-  const { register, handleSubmit, formState } = useForm({
-    resolver: yupResolver(singInFormSchema),
+export default function SignIn() {
+  const schema = yup.object().shape({
+    email: yup
+      .string()
+      .required("Campo obrigatório.")
+      .email("Deve ser um email"),
+    password: yup.string(),
   });
 
-  const { errors } = formState;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<Inputs>({
+    resolver: yupResolver(schema),
+  });
 
-  const handleSignIn: SubmitHandler<SignInFormatData> = (values) => {};
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    console.log(data);
+  };
 
   return (
     <Flex w="100vw" h="100vh" align="center" justify="center">
@@ -34,30 +39,34 @@ export default function Home() {
         maxW={360}
         bg="gray.800"
         p="8"
-        borderRadius={8}
+        borderRadius="8"
         flexDir="column"
-        onSubmit={handleSubmit(handleSignIn)}
+        onSubmit={handleSubmit(onSubmit)}
       >
-        <Stack spacing="4">
+        <Stack spacing="2">
           <Input
-            type="email"
-            name="email"
-            label="E-mail"
-            error={errors.email}
             {...register("email")}
+            error={errors.email}
+            type="email"
+            label="E-mail"
           />
           <Input
-            type="password"
-            name="password"
-            label="Senha"
-            error={errors.password}
             {...register("password")}
+            error={errors.password}
+            type="password"
+            label="Senha"
           />
-        </Stack>
 
-        <Button type="submit" mt="6" colorScheme="pink">
-          Entrar
-        </Button>
+          <Button
+            type="submit"
+            mt="4"
+            colorScheme="pink"
+            size="lg"
+            isLoading={isSubmitting}
+          >
+            Entrar
+          </Button>
+        </Stack>
       </Flex>
     </Flex>
   );

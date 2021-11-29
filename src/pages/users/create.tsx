@@ -111,7 +111,7 @@ export default function CreateUser() {
               <Button
                 type="submit"
                 colorScheme="pink"
-                isLoading={formState.loading}
+                isLoading={formState.isSubmitting}
               >
                 Salvar
               </Button>
