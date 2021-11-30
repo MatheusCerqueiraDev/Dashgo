@@ -1,5 +1,11 @@
 import faker from "faker";
-import { ActiveModelSerializer, createServer, Factory, Model } from "miragejs";
+import {
+  ActiveModelSerializer,
+  createServer,
+  Factory,
+  Model,
+  Response,
+} from "miragejs";
 
 interface UserProps {
   name: string;
@@ -39,9 +45,20 @@ export function makeServer() {
       this.namespace = "api";
       this.timing = 750;
 
-      this.get("/users");
+      this.get("users/", function (schema, request) {
+        const { page = 1, per_page = 10 } = request.queryParams;
 
-      this.get("/users/");
+        const total = schema.all("user").length;
+
+        const pageStart = (Number(page) - 1) * Number(per_page);
+        const pageEnd = pageStart + Number(per_page);
+
+        const users = this.seralize(schema.all("user")).users.slice(
+          pageStart,
+          pageEnd
+        );
+        return new Response(200, { "x-total-count": String(total) }, { users });
+      });
 
       this.post("/users");
 
